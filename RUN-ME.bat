@@ -13,6 +13,9 @@ IF "%USERNAME%" == "Administrator" (GOTO MENU)
 :HELLO
 cls
 echo Welcome %USERNAME%!
+GOTO menu
+:err-menu
+cls
 :MENU
 echo.
 echo                         ******************************
@@ -26,12 +29,13 @@ echo.
 echo Please enable "Stay Awake" and "USB Debugging" in Settings - Apps - Development.
 echo Also, please disable any programs like EasyTether, PDANet, HTC Sync, etc.
 echo.
+set M=NULL
 set /p M=Do you have the fastboot drivers installed? [Y/N] 
 IF %M%==Y (GOTO START)
 IF %M%==y (GOTO START)
 IF %M%==N (GOTO DRIVER)
 IF %M%==n (GOTO DRIVER)
-GOTO HELLO
+GOTO err-menu
 :DRIVER
 START support_files\Driver.exe
 echo.
@@ -79,11 +83,31 @@ del support_files\bl
 del support_files\rver
 echo X = MsgBox("On the revolutionary website, please scroll down to Download for Windows. Click that button, then cancel the download. Enter your phone's information in the prompts that pop up. The info you need is: Seiral Number: %serialno% Hboot version: %hbootver%. Once you do that, copy your beta key from the website, then paste it into the Revolutionary window. To paste it, right click the title bar of the Revolutionary window then click edit then click paste. If there are two revolutionary windows, you can close one. Please note that for Revolutionary to work you need to uninstall Droid Explorer if you have it. Thanks!",0+64+4096, "PLEASE READ - Message from trter10")>support_files\rev.vbs
 echo X = MsgBox("Please note that you need to enter Y to download and flash CWM recovery at the end of Revolutionary. After Revolutionary completes, using the volume buttons to navigate and power to select, you will need to exit fastboot by selecting bootloader, waiting a few seconds, then selecting recovery. Then, CWM will automatically install superuser and reboot.",0+64+4096, "PLEASE READ - Message from trter10")>>support_files\rev.vbs
-echo -Putting superuser files on your sdcard...
+:su-ask
+set M=NULL
+set /p M=Do you want to block OTA Updates? [Y/N] 
+IF %M%==Y (GOTO su-no-ota)
+IF %M%==y (GOTO su-no-ota)
+IF %M%==N (GOTO su-only)
+IF %M%==n (GOTO su-only)
+GOTO su-ask
+:su-only
+echo.
+echo -Putting superuser files on your phone...
 support_files\adb wait-for-device
 support_files\adb push support_files\su.zip /sdcard/su.zip
 support_files\adb push support_files\extendedcommand /cache/recovery/extendedcommand
 echo.
+goto rev-start
+:su-no-ota
+echo.
+echo -Putting files on your phone...
+support_files\adb wait-for-device
+support_files\adb push support_files\su.zip /sdcard/su.zip
+support_files\adb push support_files\OTABlock.zip /sdcard/OTABlock.zip
+support_files\adb push support_files\extendedcommand-noOTA /cache/recovery/extendedcommand
+echo.
+:rev-start
 echo -Starting Revolutionary and the Website....
 START iexplore.exe Revolutionary.io
 START support_files\Revolutionary.exe

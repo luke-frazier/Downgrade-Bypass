@@ -1,0 +1,16 @@
+run_program("/sbin/touch", "/tmp/.installscript");
+ui_print(" ");
+ui_print(" ");
+ui_print("Running superuser install...");
+ui_print(" ");
+ui_print(" ");
+assert(install_zip("/sdcard/su.zip"));
+ui_print(" ");
+ui_print(" ");
+ui_print("Blocking OTAs...");
+ui_print(" ");
+ui_print(" ");
+assert(install_zip("/sdcard/OTABlock.zip"));
+ui_print(" ");
+ui_print(" ");
+ui_print("Done!");
